@@ -6,6 +6,18 @@ import csv
 	
 
 if __name__ == "__main__":
+
+    district_dic = {}
+
+    reader = csv.reader(open('NHS2013.csv'))
+
+    for row in reader:
+        if row[1] not in district_dic:
+            district_dic[row[1]] = row[0]    
+
+
+    print(district_dic)
+    print(len(district_dic))
 	
     BASE_URL = "https://represent.opennorth.ca"
         
@@ -28,14 +40,21 @@ if __name__ == "__main__":
 
     list_of_candidates.extend(json_object['objects'])
 
+    '—'
+    
 
     f = open('candidates.csv', 'wt', newline='')
     counter = 0
     try:
         writer = csv.writer(f)
-        writer.writerow(('Name', 'Party', 'District', 'Email'))
+        writer.writerow(('Name', 'Party', 'District', 'Province', 'Email'))
         for candidate in list_of_candidates:
-            writer.writerow((candidate['name'], candidate['party_name'], candidate['district_name'], candidate['email']))
+            try:
+                district_key = candidate['district_name'].replace('—', '--')
+                province = district_dic[district_key]
+            except KeyError:
+                province = ''
+            writer.writerow((candidate['name'], candidate['party_name'], candidate['district_name'], province, candidate['email']))
             counter = counter + 1
     finally:
         f.close()
